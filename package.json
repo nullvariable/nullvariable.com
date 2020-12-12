@@ -1,0 +1,36 @@
+{
+  "name": "nullvariable.com",
+  "version": "1.0.0",
+  "description": "",
+  "scripts": {
+    "parcel:dev": "parcel src/index.html",
+    "parcel:build": "parcel build src/index.html",
+    "tailwind:dev": "tailwindcss-cli build ./src/css/source.css -o ./src/css/compiled.css",
+    "tailwind:build": "NODE_ENV=production tailwindcss-cli build ./src/css/source.css -o ./src/css/compiled.css",
+    "clean": "rimraf dist .cache",
+    "start": "npm-run-all -s clean tailwind:dev parcel:dev",
+    "prod": "npm-run-all -s clean tailwind:build parcel:build"
+  },
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "autoprefixer": "^10.0.4",
+    "npm-run-all": "^4.1.5",
+    "parcel": "^1.12.4",
+    "postcss": "^8.1.14",
+    "rimraf": "^3.0.2",
+    "tailwindcss": "^2.0.1",
+    "tailwindcss-cli": "^0.1.2",
+    "posthtml": "^0.15.1",
+    "posthtml-include": "^1.6.0"
+  },
+  "devDependencies": {
+    "babel-eslint": "^10.1.0",
+    "eslint": "^7.15.0",
+    "eslint-config-airbnb": "^18.2.1",
+    "eslint-config-prettier": "^7.0.0",
+    "eslint-plugin-import": "^2.22.1",
+    "prettier": "^2.2.1",
+    "pretty-quick": "^3.1.0"
+  }
+}

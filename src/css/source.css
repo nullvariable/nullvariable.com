@@ -1,0 +1,109 @@
+@tailwind base;
+@tailwind components;
+
+.gradient {
+  background: linear-gradient(90deg, #4b33d5 0%, #51d1da 100%);
+}
+
+.icon-lab .bubbles {
+  -webkit-animation: bubbles linear 2s infinite;
+  animation: bubbles linear 2s infinite;
+  -webkit-transform-origin: 50% 50%;
+  transform-origin: 50% 50%;
+}
+
+.icon-lab .chemical {
+  animation: waving linear 4s infinite alternate-reverse;
+  -webkit-transform-origin: 50% 50%;
+  transform-origin: 50% 50%;
+}
+
+@-webkit-keyframes bubbles {
+  0% {
+    opacity: 1;
+    -webkit-transform: translate(0px, 0px);
+    transform: translate(0px, 0px);
+  }
+  25% {
+    -webkit-transform: translate(11px, -10px);
+    transform: translate(11px, -10px);
+  }
+  50% {
+    -webkit-transform: translate(33px, -24px);
+    transform: translate(33px, -24px);
+  }
+  75% {
+    -webkit-transform: translate(7px, -54px);
+    transform: translate(7px, -54px);
+  }
+  100% {
+    opacity: 0;
+    -webkit-transform: translate(32px, -68px);
+    transform: translate(32px, -68px);
+  }
+}
+
+@keyframes bubbles {
+  0% {
+    opacity: 1;
+    -webkit-transform: translate(0px, 0px);
+    transform: translate(0px, 0px);
+  }
+  25% {
+    -webkit-transform: translate(11px, -10px);
+    transform: translate(11px, -10px);
+  }
+  50% {
+    -webkit-transform: translate(33px, -24px);
+    transform: translate(33px, -24px);
+  }
+  75% {
+    -webkit-transform: translate(7px, -54px);
+    transform: translate(7px, -54px);
+  }
+  100% {
+    opacity: 0;
+    -webkit-transform: translate(32px, -68px);
+    transform: translate(32px, -68px);
+  }
+}
+
+@-webkit-keyframes waving {
+  0% {
+    -webkit-transform: scaleX(1);
+    transform: scaleX(1);
+  }
+  50% {
+    -webkit-transform: scaleX(0.2);
+    transform: scaleX(0.2);
+  }
+  100% {
+    -webkit-transform: scaleX(1);
+    transform: scaleX(1);
+  }
+  100% {
+    -webkit-transform: scaleX(1);
+    transform: scaleX(1);
+  }
+}
+
+@keyframes waving {
+  0% {
+    -webkit-transform: scaleX(1);
+    transform: scaleX(1);
+  }
+  50% {
+    -webkit-transform: scaleX(0.2);
+    transform: scaleX(0.2);
+  }
+  100% {
+    -webkit-transform: scaleX(1);
+    transform: scaleX(1);
+  }
+  100% {
+    -webkit-transform: scaleX(1);
+    transform: scaleX(1);
+  }
+}
+
+@tailwind utilities;
