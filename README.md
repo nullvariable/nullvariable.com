@@ -6,6 +6,7 @@ Built by hand in VSCode on Ubuntu 20.10, using
 - realfavicongenerator.net
 - Parcel
 - Postcss
+
 Custom hosting:
 - Fastly
 - Google Cloud Storage
