@@ -1,0 +1,43 @@
+<style>
+    #contactModal::backdrop {
+        @apply bg-gray-900 opacity-50;
+    }
+</style>
+<script>
+
+</script>
+<dialog id="contactModal" class="h-auto w-11/12 md:w-9/12 p-5 bg-white rounded-md">
+    <form onSubmit={handleSubmit} id="modalContactForm">
+        <div class="flex flex-col">
+            <label htmlFor="name">
+                <span class="sr-only">Full Name</span>
+                <input type="name" name="name" placeholder="Full Name" class="w-full mt-2 py-3 px-3 rounded-lg bg-white border
+                                                    text-gray-800 font-semibold focus:border-indigo-500
+                                                    focus:outline-none" />
+            </label>
+        </div>
+        <div class="flex flex-col">
+            <label htmlFor="email">
+                <span class="sr-only">Email</span>
+                <input type="email" name="email" placeholder="Email" class="w-full mt-2 py-3 px-3 rounded-lg bg-white border
+                                                    text-gray-800 font-semibold focus:border-indigo-500
+                                                    focus:outline-none" />
+            </label>
+        </div>
+        <div class="flex flex-col mt-2">
+            <label htmlFor="message">
+                <span class="sr-only">Message</span>
+                <textarea name="message" rows="3" placeholder="Enter your message" class="w-full mt-2 py-3 px-3 rounded-lg bg-white border
+                                                    text-gray-800 font-semibold focus:border-indigo-500
+                                                    focus:outline-none" />
+            </label>
+        </div>
+        <div class="grid h-full">
+            <HCaptchaField class="m-auto" onSubmit={setToken} />
+        </div>
+        <button type="submit" disabled={isSubmitting} class="md:w-32 bg-indigo-600 hover:bg-blue-dark text-white font-bold py-3 px-6
+                            rounded-lg mt-3 hover:bg-indigo-500 transition ease-in-out duration-300">
+            Submit
+        </button>
+    </form>
+</dialog>
