@@ -1,0 +1,8 @@
+name = "nullvariable-contact"
+main = "contact-form.js"
+compatibility_date = "2024-01-01"
+account_id = "20cf47b39d871fc8f4faeeb895520ddc"
+
+[vars]
+CONTACT_EMAIL = "doug@nullvariable.com"
+FROM_EMAIL = "contact@updates.nullvariable.com"

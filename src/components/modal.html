@@ -1,106 +1,213 @@
 <style>
   #contactModal::backdrop {
-    @apply bg-gray-900 opacity-75;
+    background-color: rgb(17 24 39);
+    opacity: 0.75;
   }
   #contactModal input, #contactModal textarea {
-      @apply w-full mt-2 py-3 px-3 rounded-lg bg-white border text-gray-800 font-semibold focus:border-indigo-500 focus:outline-none;
+    width: 100%;
+    margin-top: 0.5rem;
+    padding: 0.75rem;
+    border-radius: 0.5rem;
+    background: #fff;
+    border: 1px solid #d1d5db;
+    color: #1f2937;
+    font-weight: 600;
+    box-sizing: border-box;
+  }
+  #contactModal input:focus, #contactModal textarea:focus {
+    border-color: #6366f1;
+    outline: none;
+  }
+  #contactModal {
+    overflow: visible;
+    width: 90%;
+    max-width: 560px;
+    padding: 1.5rem;
+    border: none;
+    border-radius: 0.5rem;
+    box-sizing: border-box;
+    position: relative;
+  }
+  #contactModal form > div {
+    margin-bottom: 0.75rem;
+  }
+  #contactModal .modal-close {
+    position: absolute;
+    top: 0.75rem;
+    right: 0.75rem;
+    background: none;
+    border: none;
+    font-size: 1.5rem;
+    line-height: 1;
+    color: #9ca3af;
+    cursor: pointer;
+    padding: 0.25rem 0.5rem;
+  }
+  #contactModal .modal-close:hover { color: #1f2937; }
+  #contactModal .modal-actions {
+    margin-top: 1rem;
+  }
+  #contactModal .btn-submit {
+    display: inline-block;
+    background: #42acd5;
+    color: #0f0f0f;
+    font-family: 'JetBrains Mono', 'Fira Code', ui-monospace, monospace;
+    font-weight: 700;
+    font-size: 1rem;
+    padding: 0.75rem 1.5rem;
+    border-radius: 4px;
+    border: none;
+    cursor: pointer;
+    transition: box-shadow 0.2s;
+  }
+  #contactModal .btn-submit:hover { box-shadow: 0 0 16px rgba(66, 172, 213, 0.4); }
+  #contactModal .btn-submit:disabled { opacity: 0.5; cursor: wait; }
+  @keyframes blink {
+    0%, 100% { opacity: 1; }
+    50% { opacity: 0; }
+  }
+  #contactModal .btn-submit .cursor {
+    font-weight: 900;
+    color: #0f0f0f;
+    animation: blink 1s step-end infinite;
+  }
+  #contactModal .form-status {
+    margin-top: 0.75rem;
+    font-size: 0.9rem;
+    font-family: 'JetBrains Mono', 'Fira Code', ui-monospace, monospace;
+  }
+  #contactModal .form-status.success { color: #22c55e; }
+  #contactModal .form-status.error { color: #ef4444; }
+  #contactModal .form-sent {
+    background: #0f0f0f;
+    border-radius: 0.5rem;
+    padding: 2rem;
+    font-family: 'JetBrains Mono', 'Fira Code', ui-monospace, monospace;
+    font-size: 1.125rem;
+    color: #42acd5;
+    line-height: 1.8;
+  }
+  #contactModal .form-sent .prompt {
+    color: #e0e0e0;
+  }
+  #contactModal .form-sent .blink {
+    font-weight: 900;
+    color: #42acd5;
+    animation: blink 1s step-end infinite;
   }
 </style>
 <script>
-  if (document.readyState != "loading") {
-    init()
-  } else {
-    document.addEventListener("DOMContentLoaded", init)
-  }
+  const TURNSTILE_SITE_KEY = '0x4AAAAAACvfyN0nlxQh5Xz-';
+  const WORKER_URL = 'https://nullvariable-contact.nullvariable.workers.dev/';
+
+  if (document.readyState !== "loading") { init(); }
+  else { document.addEventListener("DOMContentLoaded", init); }
+
   function init() {
-    const modal = document.getElementById("contactModal")
-    const dialogs_observer = new MutationObserver( records => {
-        records.forEach( (record) => {
-            if( record.attributeName !== "open" ) { return; }
-            if( record.target.hasAttribute( "open" ) ) {
-                record.target.dispatchEvent( new CustomEvent( 'dialog-open' ) );
-            }  
-         });
+    const modal = document.getElementById("contactModal");
+    const form = document.getElementById("modalContactForm");
+
+    modal.addEventListener("click", (e) => {
+      if (e.target.id === "contactModal") modal.close();
     });
-    dialogs_observer.observe( modal, { attributes: true } );
-    modal.addEventListener("click", maybeClose);
-    modal.addEventListener("dialog-open", maybeLoadCaptcha)    
+
+    // Load Turnstile script on first open
+    const observer = new MutationObserver((records) => {
+      for (const r of records) {
+        if (r.attributeName === "open" && modal.hasAttribute("open")) {
+          loadTurnstile();
+        }
+      }
+    });
+    observer.observe(modal, { attributes: true });
+
+    form.addEventListener("submit", handleSubmit);
   }
-  function maybeClose(event) {
-    if (event.target.id == "contactModal") {
-      document.getElementById("contactModal").close()
-    }
+
+  function loadTurnstile() {
+    if (document.getElementById("turnstile-script")) return;
+    const s = document.createElement("script");
+    s.id = "turnstile-script";
+    s.src = "https://challenges.cloudflare.com/turnstile/v0/api.js";
+    s.async = true;
+    document.head.appendChild(s);
   }
-  function maybeLoadCaptcha() {
-      if ( process.env.NODE_ENV == "development" ) {
-        document.getElementById('hcaptchadiv').dataset.sitekey = "10000000-ffff-ffff-ffff-000000000001"
-      } 
-    if ( ! document.getElementById('hcaptcha-script') ) {
-        const s = document.createElement('script')
-        s.id = `hcaptcha-script`
-        s.src = `https://hcaptcha.com/1/api.js`
-        document.head.appendChild(s)
+
+  async function handleSubmit(e) {
+    e.preventDefault();
+    const form = e.target;
+    const btn = form.querySelector(".btn-submit");
+    const status = document.getElementById("formStatus");
+
+    btn.disabled = true;
+    status.textContent = "";
+    status.className = "form-status";
+
+    const turnstileInput = form.querySelector('[name="cf-turnstile-response"]');
+    const turnstileToken = turnstileInput ? turnstileInput.value : "";
+
+    const data = {
+      name: form.name.value,
+      email: form.email.value,
+      message: form.message.value,
+      turnstileToken,
+    };
+
+    try {
+      const res = await fetch(WORKER_URL, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(data),
+      });
+
+      const result = await res.json();
+
+      if (res.ok && result.success) {
+        form.style.display = "none";
+        const sent = document.getElementById("formSent");
+        sent.style.display = "block";
+        return;
+      } else {
+        status.textContent = "> " + (result.error || "Something went wrong.");
+        status.className = "form-status error";
+        if (window.turnstile) turnstile.reset();
+      }
+    } catch (err) {
+      status.textContent = "> Network error. Try again.";
+      status.className = "form-status error";
     }
+
+    btn.disabled = false;
   }
 </script>
-<dialog
-  id="contactModal"
-  class="h-auto w-11/12 md:w-9/12 p-0 bg-white rounded-md max-w-5xl"
->
-  <div id="modal-wrapper" class="p-0">
-      <div class="p-5">
-    <form method="dialog" id="modalContactForm" action="/submit-contact">
-      <div class="flex flex-col">
-        <label htmlFor="name">
+<dialog id="contactModal">
+    <button type="button" class="modal-close" onclick="document.getElementById('contactModal').close()" aria-label="Close">&times;</button>
+    <form id="modalContactForm" autocomplete="off" data-1p-ignore data-lpignore="true" data-form-type="other">
+      <div>
+        <label>
           <span class="sr-only">Full Name</span>
-          <input
-            type="name"
-            name="name"
-            placeholder="Full Name"
-            required
-          />
+          <input type="text" name="name" placeholder="Full Name" required autocomplete="off" data-1p-ignore />
         </label>
       </div>
-      <div class="flex flex-col">
-        <label htmlFor="email">
+      <div>
+        <label>
           <span class="sr-only">Email</span>
-          <input
-            type="email"
-            name="email"
-            placeholder="Email"
-            required
-          />
+          <input type="email" name="email" placeholder="Email" required autocomplete="off" data-1p-ignore />
         </label>
       </div>
-      <div class="flex flex-col mt-2">
-        <label htmlFor="message">
+      <div>
+        <label>
           <span class="sr-only">Message</span>
-          <textarea
-            name="message"
-            rows="3"
-            placeholder="Enter your message"
-            required
-          ></textarea>
+          <textarea name="message" rows="3" placeholder="Enter your message" required></textarea>
         </label>
       </div>
-      <div class="grid h-full">
-        <div class="m-auto h-captcha" id="hcaptchadiv" data-sitekey="9a84be95-4c88-4a7c-a9c0-f723b3b93f2c" />
+      <div class="cf-turnstile" data-sitekey="0x4AAAAAACvfyN0nlxQh5Xz-" data-theme="light" data-size="compact"></div>
+      <div class="modal-actions">
+        <button type="submit" class="btn-submit">Execute<span class="cursor">_</span></button>
       </div>
-      <div class="flex justify-end space-x-4">
-          <button
-            onclick="document.getElementById('contactModal').close()"
-            class="md:w-32 bg-gray-600 text-white font-bold py-3 px-6 rounded-lg mt-3 hover:bg-gray-500 transition ease-in-out duration-300"
-          >
-            Cancel
-          </button>
-          <button
-            type="submit"
-            class="md:w-32 bg-indigo-600 text-white font-bold py-3 px-6 rounded-lg mt-3 hover:bg-indigo-500 transition ease-in-out duration-300"
-          >
-            Submit
-          </button>
-      </div>
-    </div>
+      <div id="formStatus" class="form-status"></div>
     </form>
-  </div>
+    <div id="formSent" class="form-sent" style="display:none">
+      <span class="prompt">&gt;</span> Request received. Analyzing variables...<span class="blink">_</span>
+    </div>
 </dialog>

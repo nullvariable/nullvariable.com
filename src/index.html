@@ -12,53 +12,43 @@ View the real source: https://github.com/nullvariable/nullvariable
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <meta http-equiv="X-UA-Compatible" content="ie=edge" />
-  <title>Nullvariable Web Consulting</title>
-  <meta name="description" content="Nullvariable Web Consulting helps projects large and small to tackle performance issues, scale, and sell more. Applying decades of experience to get you unstuck and to the next level." />
-  <style>
-    @import "tailwindcss/base";
-    @import "tailwindcss/components";
-    @import "./css/main.css";
-    @import "tailwindcss/utilities";
-  </style>
+  <title>Nullvariable — AI & Web Consulting</title>
+  <meta name="description" content="I help businesses figure out where AI actually fits. AI strategy, performance, e-commerce, and custom development — making the internet since 1997." />
+  <link rel="stylesheet" href="./css/main.css" />
   <meta property="og:url" content="https://www.nullvariable.com" />
-  <meta property="og:title" content="Nullvariable Web Consulting" />
-  <meta property="og:description" content="Ecommerce and Web Performance Consulting" />
+  <meta property="og:title" content="Nullvariable — AI & Web Consulting" />
+  <meta property="og:description" content="I help businesses figure out where AI actually fits." />
 
   <link rel="apple-touch-icon" sizes="180x180" href="./apple-touch-icon.png" />
-  <link rel="icon" type="image/png" sizes="32x32" href="./favicon-32x32.png" />
-  <link rel="icon" type="image/png" sizes="16x16" href="./favicon-16x16.png" />
+  <link rel="icon" type="image/svg+xml" href="./favicon.svg" />
+  <link rel="icon" type="image/x-icon" href="./favicon.ico" />
   <link rel="manifest" href="./site.webmanifest" />
-  <link rel="mask-icon" href="./safari-pinned-tab.svg" color="#000000" />
-  <meta name="msapplication-TileColor" content="#2d89ef" />
-  <meta name="theme-color" content="#ffffff" />
-  <!-- <script type="text/javascript" src="./js/main.js"></script> -->
+  <meta name="msapplication-TileColor" content="#0f0f0f" />
+  <meta name="theme-color" content="#0f0f0f" />
 </head>
 
-<body class="leading-normal tracking-normal text-white gradient" style="font-family: 'Source Sans Pro', sans-serif">
-  
+<body>
+
   <include src="./components/nav.html"></include>
 
+  <main>
   <include src="./components/hero.html"></include>
 
-  <include src="./components/ecommerce.html"></include>
+  <include src="./components/services.html"></include>
 
-  <include src="./components/performance.html"></include>
+  <include src="./components/testimonials.html"></include>
 
-  <include src="./components/three-cards.html"></include>
-
-  <include src="./svgs/wave-top.svg"></include>
-  
   <include src="./components/cta.html"></include>
-  
+  </main>
+
   <include src="./components/footer.html"></include>
 
   <include src="./components/modal.html"></include>
 
-  <script>
+  <script type="module">
     import './js/main.js';
   </script>
-  
+
 </body>
 
 </html>
