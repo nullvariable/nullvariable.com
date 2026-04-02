@@ -1,13 +1,17 @@
-import { readdir, stat } from 'fs/promises';
-import { join, extname, relative } from 'path';
+import { readdir, stat, readFile } from 'fs/promises';
+import { readFileSync, writeFileSync, existsSync } from 'fs';
+import { join, extname, relative, basename } from 'path';
 import { execFile } from 'child_process';
 import { promisify } from 'util';
+import { createHash } from 'crypto';
 
 const exec = promisify(execFile);
 
 const BUCKET = 'nullvariable-com';
 const ACCOUNT_ID = '20cf47b39d871fc8f4faeeb895520ddc';
 const DIST = 'dist';
+const MANIFEST_PATH = '.upload-manifest.json';
+const FORCE = process.argv.includes('--force');
 
 const MIME_TYPES = {
   '.html': 'text/html',
@@ -29,6 +33,26 @@ const MIME_TYPES = {
   '.map': 'application/json',
 };
 
+// --- Manifest helpers ---
+
+function loadManifest() {
+  if (FORCE) return {};
+  try {
+    return JSON.parse(readFileSync(MANIFEST_PATH, 'utf8'));
+  } catch {
+    return {};
+  }
+}
+
+function saveManifest(manifest) {
+  writeFileSync(MANIFEST_PATH, JSON.stringify(manifest, null, 2));
+}
+
+async function hashFileAsync(filePath) {
+  const content = await readFile(filePath);
+  return createHash('md5').update(content).digest('hex');
+}
+
 async function walk(dir) {
   const entries = await readdir(dir, { withFileTypes: true });
   const files = [];
@@ -47,6 +71,10 @@ function cacheControl(filePath) {
   const ext = extname(filePath);
   if (ext === '.html' || filePath.endsWith('site.webmanifest')) {
     return 'no-cache';
+  }
+  // Blog HTML and unhashed assets get short cache
+  if (filePath.includes('blog/') && !basename(filePath).match(/\.[a-f0-9]{8}\./)) {
+    return 'public, max-age=3600';
   }
   return 'public, max-age=31536000, immutable';
 }
@@ -76,18 +104,60 @@ async function upload(filePath) {
 }
 
 async function main() {
+  console.log(`${FORCE ? 'Force uploading' : 'Uploading'} to R2 bucket "${BUCKET}"...\n`);
+
+  const manifest = loadManifest();
   const files = await walk(DIST);
-  console.log(`Uploading ${files.length} files to R2 bucket "${BUCKET}"...\n`);
 
-  // Upload HTML files last so assets are available first
-  const assets = files.filter(f => extname(f) !== '.html');
-  const html = files.filter(f => extname(f) === '.html');
+  // Build a set of current file keys for cleanup
+  const currentKeys = new Set();
 
-  for (const file of [...assets, ...html]) {
-    await upload(file);
+  // Compute hashes and determine which files need uploading
+  const toUpload = [];
+  let skippedCount = 0;
+
+  for (const file of files) {
+    const key = relative(DIST, file);
+    currentKeys.add(key);
+    const hash = await hashFileAsync(file);
+
+    if (!FORCE && manifest[key] && manifest[key] === hash) {
+      skippedCount++;
+      continue;
+    }
+
+    toUpload.push({ file, key, hash });
   }
 
-  console.log(`\nDone — ${files.length} files uploaded.`);
+  // Remove manifest entries for files that no longer exist in dist/
+  for (const key of Object.keys(manifest)) {
+    if (!currentKeys.has(key)) {
+      delete manifest[key];
+    }
+  }
+
+  if (toUpload.length === 0) {
+    console.log(`  No changes detected. All ${skippedCount} files unchanged.`);
+    saveManifest(manifest);
+    console.log('\nDone — nothing to upload.');
+    return;
+  }
+
+  console.log(`  ${toUpload.length} files to upload, ${skippedCount} unchanged.\n`);
+
+  // Upload HTML files last so assets are available first
+  const assets = toUpload.filter(f => extname(f.file) !== '.html');
+  const html = toUpload.filter(f => extname(f.file) === '.html');
+
+  for (const { file, key, hash } of [...assets, ...html]) {
+    await upload(file);
+    manifest[key] = hash;
+  }
+
+  // Save manifest after successful upload
+  saveManifest(manifest);
+
+  console.log(`\nDone — uploaded ${toUpload.length} files, skipped ${skippedCount} unchanged.`);
 }
 
 main().catch(err => {

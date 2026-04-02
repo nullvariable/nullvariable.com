@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>{{TITLE}} — Nullvariable</title>
+  <meta name="description" content="{{DESCRIPTION}}" />
+  <link rel="stylesheet" href="/{{CSS_FILE}}" />
+  <link rel="stylesheet" href="/blog/{{BLOG_CSS_FILE}}" />
+  <meta property="og:url" content="https://nullvariable.com/blog/{{SLUG}}/" />
+  <meta property="og:title" content="{{TITLE}} — Nullvariable" />
+  <meta property="og:description" content="{{DESCRIPTION}}" />
+  <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png" />
+  <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+  <link rel="icon" type="image/x-icon" href="/favicon.ico" />
+  <link rel="alternate" type="application/rss+xml" title="Nullvariable Blog" href="/blog/feed.xml" />
+  <meta name="theme-color" content="#0f0f0f" />
+</head>
+<body>
+
+{{NAV}}
+
+<main>
+<article class="blog-post">
+  <div class="section-inner">
+    <header class="blog-header">
+      <time datetime="{{DATE}}">{{DATE_DISPLAY}}</time>
+      <h1>{{TITLE}}</h1>
+      {{TAGS_HTML}}
+    </header>
+    {{IMAGE}}
+    <div class="blog-content">
+      {{CONTENT}}
+    </div>
+  </div>
+</article>
+</main>
+
+{{FOOTER}}
+
+<script defer src='https://static.cloudflareinsights.com/beacon.min.js' data-cf-beacon='{"token": "f1fcb25472e74225a839aa501edd04b6"}'></script>
+</body>
+</html>

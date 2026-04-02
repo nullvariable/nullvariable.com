@@ -7,7 +7,11 @@
   "scripts": {
     "start": "parcel src/index.html",
     "build": "parcel build src/index.html --no-cache",
-    "upload": "node upload.js"
+    "blog": "node blog-build.js",
+    "inline": "node inline-css.js",
+    "upload": "node upload.js",
+    "clean": "rm -rf dist .parcel-cache",
+    "deploy": "npm run clean && npm run build && npm run blog && npm run inline && npm run upload"
   },
   "author": "Doug Cone <nullvariable+nospam@gmail.com> (https://dougcone.com/)",
   "license": "CC-BY-SA-4.0",
@@ -19,6 +23,8 @@
     "@parcel/packager-raw-url": "^2.16.4",
     "@parcel/transformer-webmanifest": "^2.16.4",
     "dotenv": "^16.4.0",
+    "gray-matter": "^4.0.3",
+    "marked": "^17.0.5",
     "parcel": "^2.12.0",
     "posthtml-include": "^1.6.0",
     "sharp": "^0.33.5"

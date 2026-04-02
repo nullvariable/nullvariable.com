@@ -142,6 +142,23 @@ body {
   color: #fff;
 }
 
+.nav-links {
+  display: flex;
+  align-items: center;
+  gap: 1.5rem;
+}
+
+.nav-link {
+  color: #a0a0a0;
+  text-decoration: none;
+  font-size: 0.9rem;
+  transition: color 0.2s;
+}
+
+.nav-link:hover {
+  color: #fff;
+}
+
 .nav-cta {
   font-family: 'JetBrains Mono', 'Fira Code', ui-monospace, monospace;
   font-weight: 700;

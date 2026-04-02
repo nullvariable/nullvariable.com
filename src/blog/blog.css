@@ -1,0 +1,158 @@
+/* Blog content styles */
+.blog-index, .blog-post {
+  background: #0f0f0f;
+  color: #e0e0e0;
+  padding: 6rem 0 4rem;
+  min-height: 100vh;
+}
+
+.blog-index h1, .blog-header h1 {
+  color: #fff;
+  font-size: clamp(1.75rem, 4vw, 2.5rem);
+  font-weight: 700;
+  margin: 0 0 2rem;
+  line-height: 1.2;
+}
+
+.blog-header time {
+  font-family: 'JetBrains Mono', 'Fira Code', ui-monospace, monospace;
+  font-size: 0.85rem;
+  color: #42acd5;
+}
+
+.blog-header {
+  margin-bottom: 2.5rem;
+}
+
+.blog-hero-image {
+  display: block;
+  max-width: 100%;
+  height: auto;
+  border-radius: 0.5rem;
+  margin-bottom: 2rem;
+  box-sizing: border-box;
+}
+
+.blog-content p {
+  margin: 0 0 1.25rem;
+  line-height: 1.75;
+  font-size: 1.15rem;
+}
+
+.blog-content h2 {
+  color: #fff;
+  font-size: 1.5rem;
+  margin: 2rem 0 1rem;
+}
+
+.blog-content h3 {
+  color: #fff;
+  font-size: 1.25rem;
+  margin: 1.5rem 0 0.75rem;
+}
+
+.blog-content a {
+  color: #42acd5;
+  text-decoration: underline;
+}
+
+.blog-content blockquote {
+  border-left: 2px solid #42acd5;
+  padding-left: 1.25rem;
+  margin: 1.5rem 0;
+  color: #a0a0a0;
+  font-style: italic;
+}
+
+.blog-content code {
+  font-family: 'JetBrains Mono', 'Fira Code', ui-monospace, monospace;
+  background: rgba(255,255,255,0.06);
+  padding: 0.15em 0.4em;
+  border-radius: 3px;
+  font-size: 0.9em;
+}
+
+.blog-content pre {
+  background: #1a1a2e;
+  padding: 1.25rem;
+  border-radius: 0.5rem;
+  overflow-x: auto;
+  margin: 1.5rem 0;
+}
+
+.blog-content pre code {
+  background: none;
+  padding: 0;
+}
+
+.blog-content ol, .blog-content ul {
+  margin: 0 0 1.25rem;
+  padding-left: 1.5rem;
+}
+
+.blog-content li {
+  margin-bottom: 0.5rem;
+  line-height: 1.75;
+  font-size: 1.15rem;
+}
+
+/* Post cards on index/tag pages */
+.post-card {
+  border-bottom: 1px solid rgba(255,255,255,0.06);
+  padding: 1.5rem 0;
+}
+
+.post-card:last-child {
+  border-bottom: none;
+}
+
+.post-card time {
+  font-family: 'JetBrains Mono', 'Fira Code', ui-monospace, monospace;
+  font-size: 0.8rem;
+  color: #7a7a8a;
+}
+
+.post-card h2 {
+  font-size: 1.25rem;
+  margin: 0.25rem 0 0.5rem;
+}
+
+.post-card h2 a {
+  color: #fff;
+  text-decoration: none;
+  transition: color 0.2s;
+}
+
+.post-card h2 a:hover {
+  color: #42acd5;
+}
+
+.post-card p {
+  color: #a0a0a0;
+  margin: 0;
+  font-size: 0.95rem;
+  line-height: 1.6;
+}
+
+/* Tags */
+.tag-list {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  margin-top: 0.75rem;
+}
+
+.tag-pill {
+  font-family: 'JetBrains Mono', 'Fira Code', ui-monospace, monospace;
+  font-size: 0.75rem;
+  color: #42acd5;
+  border: 1px solid rgba(66, 172, 213, 0.3);
+  border-radius: 9999px;
+  padding: 0.2em 0.7em;
+  text-decoration: none;
+  transition: border-color 0.2s;
+}
+
+.tag-pill:hover {
+  border-color: #42acd5;
+}
