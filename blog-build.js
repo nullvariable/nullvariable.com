@@ -294,12 +294,17 @@ function copyImages() {
   let skippedCount = 0;
 
   for (const file of files) {
+    const srcPath = join(imagesDir, file);
     const destPath = join(imagesDist, file);
     if (!FORCE && existsSync(destPath)) {
-      skippedCount++;
-      continue;
+      const srcHash = createHash('md5').update(readFileSync(srcPath)).digest('hex');
+      const destHash = createHash('md5').update(readFileSync(destPath)).digest('hex');
+      if (srcHash === destHash) {
+        skippedCount++;
+        continue;
+      }
     }
-    copyFileSync(join(imagesDir, file), destPath);
+    copyFileSync(srcPath, destPath);
     copiedCount++;
   }
 
