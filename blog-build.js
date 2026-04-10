@@ -3,6 +3,7 @@ import { join, basename, extname } from 'path';
 import { createHash } from 'crypto';
 import matter from 'gray-matter';
 import { marked } from 'marked';
+import sharp from 'sharp';
 
 const SRC = 'src';
 const DIST = 'dist';
@@ -146,8 +147,9 @@ function buildPostPages(posts, template, nav, footer, cssFile, blogCssFile, mani
 
     mkdirSync(dir, { recursive: true });
 
-    const imageHtml = post.image
-      ? `<img class="blog-hero-image" src="/blog/images/${post.image}" alt="${post.title}" />`
+    const resolvedImage = resolveImageFilename(post.image);
+    const imageHtml = resolvedImage
+      ? `<img class="blog-hero-image" src="/blog/images/${resolvedImage}" alt="${post.title}" />`
       : '';
 
     const html = template
@@ -280,9 +282,11 @@ function processBlogCss() {
   return filename;
 }
 
-// --- Copy images incrementally ---
+// --- Optimize and copy images incrementally ---
 
-function copyImages() {
+const CONVERTIBLE_EXTS = new Set(['.png', '.jpg', '.jpeg']);
+
+async function optimizeImages(manifest) {
   const imagesDir = join(BLOG_SRC, 'images');
   if (!existsSync(imagesDir)) return;
 
@@ -290,35 +294,70 @@ function copyImages() {
   mkdirSync(imagesDist, { recursive: true });
 
   const files = readdirSync(imagesDir);
+  let optimizedCount = 0;
   let copiedCount = 0;
   let skippedCount = 0;
 
   for (const file of files) {
     const srcPath = join(imagesDir, file);
-    const destPath = join(imagesDist, file);
-    if (!FORCE && existsSync(destPath)) {
+    const ext = extname(file).toLowerCase();
+
+    if (CONVERTIBLE_EXTS.has(ext)) {
+      // Convert png/jpg to webp
+      const webpName = basename(file, ext) + '.webp';
+      const destPath = join(imagesDist, webpName);
       const srcHash = createHash('md5').update(readFileSync(srcPath)).digest('hex');
-      const destHash = createHash('md5').update(readFileSync(destPath)).digest('hex');
-      if (srcHash === destHash) {
-        skippedCount++;
-        continue;
+
+      if (!FORCE && existsSync(destPath)) {
+        const cached = manifest._imageHashes?.[file];
+        if (cached === srcHash) {
+          skippedCount++;
+          continue;
+        }
       }
+
+      await sharp(srcPath).webp({ quality: 80 }).toFile(destPath);
+      if (!manifest._imageHashes) manifest._imageHashes = {};
+      manifest._imageHashes[file] = srcHash;
+      optimizedCount++;
+      console.log(`  Image: ${file} → ${webpName}`);
+    } else {
+      // Copy webp/svg/etc as-is
+      const destPath = join(imagesDist, file);
+      if (!FORCE && existsSync(destPath)) {
+        const srcHash = createHash('md5').update(readFileSync(srcPath)).digest('hex');
+        const destHash = createHash('md5').update(readFileSync(destPath)).digest('hex');
+        if (srcHash === destHash) {
+          skippedCount++;
+          continue;
+        }
+      }
+      copyFileSync(srcPath, destPath);
+      copiedCount++;
     }
-    copyFileSync(srcPath, destPath);
-    copiedCount++;
   }
 
   const total = files.length;
-  if (skippedCount > 0) {
-    console.log(`  Images: ${copiedCount} copied, ${skippedCount} already exist (${total} total)`);
-  } else {
-    console.log(`  Images: ${total} files copied`);
+  const parts = [];
+  if (optimizedCount) parts.push(`${optimizedCount} optimized to webp`);
+  if (copiedCount) parts.push(`${copiedCount} copied`);
+  if (skippedCount) parts.push(`${skippedCount} cached`);
+  console.log(`  Images: ${parts.join(', ')} (${total} total)`);
+}
+
+// Resolve image filename — if source is a convertible format, use .webp in output
+function resolveImageFilename(image) {
+  if (!image) return null;
+  const ext = extname(image).toLowerCase();
+  if (CONVERTIBLE_EXTS.has(ext)) {
+    return basename(image, ext) + '.webp';
   }
+  return image;
 }
 
 // --- Main ---
 
-function main() {
+async function main() {
   console.log(`Building blog...${FORCE ? ' (--force)' : ''}\n`);
 
   const manifest = loadManifest();
@@ -348,8 +387,8 @@ function main() {
   buildTagPages(posts, tagTemplate, nav, footer, cssFile, blogCssFile);
   buildRssFeed(posts);
 
-  // Copy images incrementally
-  copyImages();
+  // Optimize and copy images incrementally (png/jpg → webp)
+  await optimizeImages(manifest);
 
   // Save updated manifest
   saveManifest(manifest);
